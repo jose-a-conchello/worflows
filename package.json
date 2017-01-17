@@ -1,0 +1,15 @@
+{
+  "name": "workflows",
+  "version": "0.0.1",
+  "description": "To learn workflows",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "?.git"
+  },
+  "author": "Me",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.8"
+  }
+}
