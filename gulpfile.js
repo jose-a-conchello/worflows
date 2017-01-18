@@ -7,6 +7,7 @@ var gulp = require('gulp');
 var gutil = require('gulp-util'),
     coffee = require('gulp-coffee'),
     browserify = require('gulp-browserify'), // takes care of 'require'
+    compass = require('gulp-compass'), // Includes sass
     concat = require('gulp-concat');
 
 //  The 'src' method can take a file name or an array of file names.
@@ -22,6 +23,8 @@ var jsSources = [
       'components/scripts/tagline.js', 
       'components/scripts/template.js'
     ];
+
+var sassSources = ['components/sass/style.scss'];
 
 //  task to convert coffee into JavaScript
 gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
@@ -42,3 +45,18 @@ gulp.task('js', function() {
     .pipe(gulp.dest('builds/development/js')) // place here the file
 });
 
+// see http://sass-lang.com/documentation/file.SASS_REFERENCE.html
+//  for sass options 
+// Task to apply sass and compass
+gulp.task('compass', function() {
+  gulp.src(sassSources)
+    
+    .pipe(compass({
+        sass: 'components/sass', // find sass &scss files here
+        image: 'builds/development/images', // where images are
+        style: 'expanded' // output: nested, expanded, compact, compressed
+      })
+      .on('error', gutil.log)  // What to do in case of a compass error
+    ) 
+    .pipe(gulp.dest('builds/development/css')) // place css file here
+});
