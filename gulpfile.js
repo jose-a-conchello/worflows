@@ -5,14 +5,24 @@ var gulp = require('gulp');
 
 // more plugins into other variables
 var gutil = require('gulp-util'),
-    coffee = require('gulp-coffee');
+    coffee = require('gulp-coffee'),
+    concat = require('gulp-concat');
 
 //  The 'src' method can take a file name or an array of file names.
 //  JavaScript array syntax: ['file1', 'file2', ..., 'fileN']
 //  File names can include wildcards e.g. 'components/coffee/*.coffee'
 var coffeeSources = ['components/coffee/tagline.coffee'];
+//  List of JavaScript files to use for the project
+//  (includes does created by 'coffee')
+//  Files are processed in the order they appear in the array
+var jsSources = [
+      'components/scripts/rclick.js', 
+      'components/scripts/pixgrid.js', 
+      'components/scripts/tagline.js', 
+      'components/scripts/template.js'
+    ];
 
-//  Create a task
+//  task to convert coffee into JavaScript
 gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
 //  The function body is what we want 'gulp' to do
   gulp.src(coffeeSources)
@@ -20,5 +30,13 @@ gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
       .on('error', gutil.log) ) // What to do in case of a coffee error
                                 // .log logs the error (to stdout?)
     .pipe( gulp.dest('components/scripts') ) //where to place result
+});
+
+// Task to process JavaScript files
+gulp.task('js', function() {
+  gulp.src(jsSources)
+    .pipe(concat('jscript.js')) // concatenate into a single script
+                                // file name is the one used in the html
+    .pipe(gulp.dest('builds/development/js')) // place here the file
 });
 
