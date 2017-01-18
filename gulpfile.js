@@ -67,5 +67,10 @@ gulp.task('compass', function() {
 //  This can be exploited to create an empty tasks with all
 //  other tasks as requisites
 
-gulp.task('all', ['coffee', 'js', 'compass']); // no third arg used
+// An alternate approach is to create a task called 'default' 
+//  that depends on all the other tasks. When gulp is used w/o 
+//  arguments, it performs the default task
+
+gulp.task('default', ['coffee', 'js', 'compass']); 
+// no third arg used but it can be included if desired 
 
