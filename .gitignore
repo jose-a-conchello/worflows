@@ -1,6 +1,6 @@
 # .gitignore comment
 .*.swp
 node_modules
-*Simple*
+gulpfileV*.js
 .DS_Store
 .localized
