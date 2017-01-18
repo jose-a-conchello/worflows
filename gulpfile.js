@@ -6,6 +6,7 @@ var gulp = require('gulp');
 // more plugins into other variables
 var gutil = require('gulp-util'),
     coffee = require('gulp-coffee'),
+    browserify = require('gulp-browserify'), // takes care of 'require'
     concat = require('gulp-concat');
 
 //  The 'src' method can take a file name or an array of file names.
@@ -37,6 +38,7 @@ gulp.task('js', function() {
   gulp.src(jsSources)
     .pipe(concat('jscript.js')) // concatenate into a single script
                                 // file name is the one used in the html
+    .pipe(browserify()) 
     .pipe(gulp.dest('builds/development/js')) // place here the file
 });
 

@@ -1,4 +1,4 @@
-$ = require 'jquery'
+$ = require 'jquery'  # place the library into a variable
 
 do fill = (item = 'The most creative minds in Art') ->
 #..search for an element of class 'tagline' and insert
