@@ -26,6 +26,7 @@ var jsSources = [
 
 var sassSources = ['components/sass/style.scss'];
 
+
 //  task to convert coffee into JavaScript
 gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
 //  The function body is what we want 'gulp' to do
@@ -50,9 +51,8 @@ gulp.task('js', function() {
 // Task to apply sass and compass
 gulp.task('compass', function() {
   gulp.src(sassSources)
-    
     .pipe(compass({
-        sass: 'components/sass', // find sass &scss files here
+        sass : 'components/sass', // find sass &scss files here
         image: 'builds/development/images', // where images are
         style: 'expanded' // output: nested, expanded, compact, compressed
       })
@@ -60,3 +60,12 @@ gulp.task('compass', function() {
     ) 
     .pipe(gulp.dest('builds/development/css')) // place css file here
 });
+
+// the task method has an optional second argument with a list 
+//  of tasks the current one depends on. Those tasks will be done
+//  before the current one.
+//  This can be exploited to create an empty tasks with all
+//  other tasks as requisites
+
+gulp.task('all', ['coffee', 'js', 'compass']); // no third arg used
+
