@@ -1,2 +1,6 @@
+# .gitignore comment
 .*.swp
 node_modules
+*Simple*
+.DS_Store
+.localized

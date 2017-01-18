@@ -3,12 +3,18 @@ var gulp = require('gulp');
 //  The 'gulp' variable contains an object that has all the
 //  methods in the gulp library.
 
-// Another plugin into another variable
-var gutil = require('gulp-util');
+// more plugins into other variables
+var gutil = require('gulp-util'),
+    coffee = require('gulp-coffee');
 
 //  Create a task
-gulp.task('log', function ()   {// 'log' = task name (whatever we want)
+gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
 //  The function body is what we want 'gulp' to do
-    gutil.log("A message"); // prints a message to stdout
+//  The 'src' method can take a file name or an array of file names.
+//  JavaScript array syntax: ['file1', 'file2', ..., 'fileN']
+  gulp.src('components/coffee/tagline.coffee')
+    .pipe( coffee({bare: true}) // Make a .js form the .coffee
+      .on('error', gutil.log) ) // What to do in case of a coffee error
+    .pipe( gulp.dest('components/scripts') ) //where to place result
 });
 
