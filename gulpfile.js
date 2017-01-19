@@ -8,7 +8,9 @@ var gutil = require('gulp-util'),
     coffee = require('gulp-coffee'),
     browserify = require('gulp-browserify'), // takes care of 'require'
     compass = require('gulp-compass'), // Includes sass
-    concat = require('gulp-concat');
+    concat = require('gulp-concat'),
+    connect = require('gulp-connect'),
+    livereload = require('gulp-livereload');
 
 //  The 'src' method can take a file name or an array of file names.
 //  JavaScript array syntax: ['file1', 'file2', ..., 'fileN']
@@ -44,6 +46,8 @@ gulp.task('js', function() {
                                 // file name is the one used in the html
     .pipe(browserify()) 
     .pipe(gulp.dest('builds/development/js')) // place here the file
+    .pipe(connect.reload()) // automatically reload the page
+                            // see comment below regarding 'connect'
 });
 
 // see http://sass-lang.com/documentation/file.SASS_REFERENCE.html
@@ -59,6 +63,8 @@ gulp.task('compass', function() {
       .on('error', gutil.log)  // What to do in case of a compass error
     ) 
     .pipe(gulp.dest('builds/development/css')) // place css file here
+    .pipe(connect.reload()) // automatically reload the page
+                            // see comment below regarding 'connect'
 });
 
 // the task method has an optional second argument with a list 
@@ -67,11 +73,11 @@ gulp.task('compass', function() {
 //  This can be exploited to create an empty tasks with all
 //  other tasks as requisites
 
-// An alternate approach is to create a task called 'default' 
+//  An alternate approach is to create a task called 'default' 
 //  that depends on all the other tasks. When gulp is used w/o 
 //  arguments, it performs the default task
 
-gulp.task('default', ['coffee', 'js', 'compass']); 
+// // // gulp.task('default', ['coffee', 'js', 'compass']); 
 // no third arg used but a call-back can be included if desired 
 
 // gulp watch method to watch for file changes
@@ -82,3 +88,32 @@ gulp.task('watch',  function(){
     gulp.watch(['components/sass/*.scss'], ['compass']);
 });
 
+//..Making the default task run 'watch' (instead of the array of
+//  tasks 'watch' triggers one can start gulp w/o args. and leave
+//  it running
+gulp.task('default', ['connect', 'watch']); 
+
+//  The 'connect' task below starts a server when the default task
+//  launches but does not refresh (or reload) in response to any
+//  change.  To have it reload, either a new task needs to be
+//  created or a reload method added to existing tasks. In this
+//  example, the reload is added to both the 'js' and the
+//  'compass' tasks. It is not necessary for the 'coffee' task
+//  because it modifies a JavaScript file and thus causes the 'js'
+//  task to run.
+//  
+//  UPDATE:
+//  gulp-connect no longer suppors livereload. livereload is now
+//  a separate plugin. The 'listen' method must be explicity 
+//  used, for example in the 'watch' task. I tried this but did not
+//  work either.
+//
+//  For more info:
+//      https://www.npmjs.com/package/gulp-livereload
+
+gulp.task('connect', function() {
+connect.server(  {
+       root: 'builds/development/', // root directory with files to load 
+       liveload: true
+    });
+});
