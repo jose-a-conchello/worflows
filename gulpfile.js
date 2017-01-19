@@ -72,5 +72,13 @@ gulp.task('compass', function() {
 //  arguments, it performs the default task
 
 gulp.task('default', ['coffee', 'js', 'compass']); 
-// no third arg used but it can be included if desired 
+// no third arg used but a call-back can be included if desired 
+
+// gulp watch method to watch for file changes
+gulp.task('watch',  function(){
+//..watch(<file or array of files>, <function or array of tasks>)
+    gulp.watch(coffeeSources, ['coffee']);
+    gulp.watch(jsSources, ['js']);
+    gulp.watch(['components/sass/*.scss'], ['compass']);
+});
 
