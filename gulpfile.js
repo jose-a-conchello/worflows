@@ -12,22 +12,57 @@ var gutil = require('gulp-util'),
     connect = require('gulp-connect'),
     livereload = require('gulp-livereload');
 
+var env, // set below from the OS environment
+    coffeeSources, // xxSources and outputDir set when 'env' is known.
+    jsSources,
+    sassSources,
+    htmlSources,
+    jsonSources,
+    outputDir,
+    sassStyle; // output style for compass (set when env is known)
+
+//  The Node.js process.env method of the JavaScript 'process'
+//  object gets the OS environment variables. 
+//      https://nodejs.org/docs/latest/api/process.html 
+//  specifically
+//      https://nodejs.org/docs/latest/api/process.html#process_process_env
+//  Syntax:
+//      somevar = process.env  gets all the environment variables
+//      somevar = process.env.ENV_VAR   gets only ENV_VAR
+//  Under Windows, process.env might not work. The node shell(?) 
+//      might not use environment variables.
+
+env = process.env.NODE_ENV || 'development';
+
+//  The short-circuit or (||) is provides a value if NODE_ENV 
+//  does not exist.
+
+if (env ==='development') {
+    outputDir = 'builds/development/';
+    sassStyle = 'expanded';
+}
+else { // anything other than 'development' is considered production
+    outputDir = 'builds/production/';
+    sassStyle = 'compressed';
+}
+
 //  The 'src' method can take a file name or an array of file names.
 //  JavaScript array syntax: ['file1', 'file2', ..., 'fileN']
 //  File names can include wildcards e.g. 'components/coffee/*.coffee'
-var coffeeSources = ['components/coffee/tagline.coffee'];
+coffeeSources = ['components/coffee/tagline.coffee'];
 //  List of JavaScript files to use for the project
-//  (includes does created by 'coffee')
+//  (includes those created by 'coffee')
 //  Files are processed in the order they appear in the array
-var jsSources = [
+jsSources = [
       'components/scripts/rclick.js', 
       'components/scripts/pixgrid.js', 
       'components/scripts/tagline.js', 
       'components/scripts/template.js'
     ];
 
-var sassSources = ['components/sass/style.scss'];
-
+sassSources = ['components/sass/style.scss'];
+htmlSources = [outputDir + '*.html'];
+jsonSources = [outputDir + 'js/*.json'];
 
 //  task to convert coffee into JavaScript
 gulp.task('coffee', function ()   {// 'log' = task name (whatever we want)
@@ -45,7 +80,7 @@ gulp.task('js', function() {
     .pipe(concat('jscript.js')) // concatenate into a single script
                                 // file name is the one used in the html
     .pipe(browserify()) 
-    .pipe(gulp.dest('builds/development/js')) // place here the file
+    .pipe(gulp.dest(outputDir + 'js')) // place here the file
     .pipe(connect.reload()) // automatically reload the page
                             // see comment below regarding 'connect'
 });
@@ -57,12 +92,12 @@ gulp.task('compass', function() {
   gulp.src(sassSources)
     .pipe(compass({
         sass : 'components/sass', // find sass &scss files here
-        image: 'builds/development/images', // where images are
-        style: 'expanded' // output: nested, expanded, compact, compressed
+        image: outputDir + 'images', // where images are
+        style: sassStyle // output: nested, expanded, compact, compressed
       })
       .on('error', gutil.log)  // What to do in case of a compass error
     ) 
-    .pipe(gulp.dest('builds/development/css')) // place css file here
+    .pipe(gulp.dest(outputDir + 'css')) // place css file here
     .pipe(connect.reload()) // automatically reload the page
                             // see comment below regarding 'connect'
 });
@@ -81,17 +116,34 @@ gulp.task('compass', function() {
 // no third arg used but a call-back can be included if desired 
 
 // gulp watch method to watch for file changes
+// wawa.watch(<file or array of files>, <function or array of tasks>)
+//  first arg. is what to watch. Either a file or an array of files
+//  second arg. is what do do when a watched file changes. It can
+//      be a function or an array of tasks.
 gulp.task('watch',  function(){
-//..watch(<file or array of files>, <function or array of tasks>)
     gulp.watch(coffeeSources, ['coffee']);
     gulp.watch(jsSources, ['js']);
     gulp.watch(['components/sass/*.scss'], ['compass']);
+    gulp.watch(['builds/development/*.html'], ['html']);
+    gulp.watch(['builds/development/js/*.json'], ['json']);
 });
 
+//  Because connect.reload() is not working, the 'json' and 'html'
+//  tasks do nothing
+gulp.task('json', function() {
+   gulp.src(jsonSources) 
+    .pipe(connect.reload()); // thus far, reload does not work
+});
+gulp.task('html', function() {
+   gulp.src(['builds/development/*.html'])
+    .pipe(connect.reload()); // thus far, reload does not work
+});
+//..By default, do all tasks, then keep warching
+var allTasks = ['html', 'coffee', 'js', 'compass', 'watch', 'connect'];
 //..Making the default task run 'watch' (instead of the array of
 //  tasks 'watch' triggers one can start gulp w/o args. and leave
 //  it running
-gulp.task('default', ['connect', 'watch']); 
+gulp.task('default', allTasks); 
 
 //  The 'connect' task below starts a server when the default task
 //  launches but does not refresh (or reload) in response to any
@@ -113,7 +165,7 @@ gulp.task('default', ['connect', 'watch']);
 
 gulp.task('connect', function() {
 connect.server(  {
-       root: 'builds/development/', // root directory with files to load 
+       root: outputDir, // root directory with files to load 
        liveload: true
     });
 });
