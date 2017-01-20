@@ -13,6 +13,7 @@ var gutil = require('gulp-util'),
     gulpif = require('gulp-if'), // Usage: gulpif(condition, function);
     livereload = require('gulp-livereload'),
     minifyHTML = require('gulp-minify-html'),
+    jsonminify = require('gulp-jsonminify'),
     uglify = require('gulp-uglify');
 
 
@@ -137,8 +138,12 @@ gulp.task('watch',  function(){
 //  tasks do not change the displayed page. It has to be manually
 //  reloaded
 gulp.task('json', function() {
-   gulp.src(jsonSources) 
-    .pipe(connect.reload()); // thus far, reload does not work
+    gulp.src('builds/development/js/*.json') 
+    //..See coments regarding minimization in 'html' task below 
+        .pipe(gulpif(env === 'production', jsonminify()))
+        .pipe(gulpif(env === 'production', 
+                gulp.dest('builds/production/js')))
+        .pipe(connect.reload()); // connect.reload does not work
 });
 gulp.task('html', function() {
 //..htmlSources does not always point to devel.
@@ -152,7 +157,8 @@ gulp.task('html', function() {
         .pipe(connect.reload()); // thus far, reload does not work
 });
 //..By default, do all tasks, then keep warching
-var allTasks = ['html', 'coffee', 'js', 'compass', 'watch', 'connect'];
+var allTasks = ['html', 'coffee', 'js', 'json', 
+                'compass', 'watch', 'connect'];
 //..Making the default task run 'watch' (instead of the array of
 //  tasks 'watch' triggers one can start gulp w/o args. and leave
 //  it running
