@@ -10,7 +10,10 @@ var gutil = require('gulp-util'),
     compass = require('gulp-compass'), // Includes sass
     concat = require('gulp-concat'),
     connect = require('gulp-connect'),
-    livereload = require('gulp-livereload');
+    gulpif = require('gulp-if'), // Usage: gulpif(condition, function);
+    livereload = require('gulp-livereload'),
+    uglify = require('gulp-uglify');
+
 
 var env, // set below from the OS environment
     coffeeSources, // xxSources and outputDir set when 'env' is known.
@@ -80,6 +83,7 @@ gulp.task('js', function() {
     .pipe(concat('jscript.js')) // concatenate into a single script
                                 // file name is the one used in the html
     .pipe(browserify()) 
+    .pipe(gulpif(env === 'production', uglify()))
     .pipe(gulp.dest(outputDir + 'js')) // place here the file
     .pipe(connect.reload()) // automatically reload the page
                             // see comment below regarding 'connect'
