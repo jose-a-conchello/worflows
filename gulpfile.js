@@ -12,6 +12,7 @@ var gutil = require('gulp-util'),
     connect = require('gulp-connect'),
     gulpif = require('gulp-if'), // Usage: gulpif(condition, function);
     livereload = require('gulp-livereload'),
+    minifyHTML = require('gulp-minify-html'),
     uglify = require('gulp-uglify');
 
 
@@ -133,14 +134,22 @@ gulp.task('watch',  function(){
 });
 
 //  Because connect.reload() is not working, the 'json' and 'html'
-//  tasks do nothing
+//  tasks do not change the displayed page. It has to be manually
+//  reloaded
 gulp.task('json', function() {
    gulp.src(jsonSources) 
     .pipe(connect.reload()); // thus far, reload does not work
 });
 gulp.task('html', function() {
-   gulp.src(['builds/development/*.html'])
-    .pipe(connect.reload()); // thus far, reload does not work
+//..htmlSources does not always point to devel.
+//  Make explicit to start with the development files
+    gulp.src(['builds/development/*.html'])
+    //..in production, make html as small as possible
+        .pipe(gulpif(env === 'production', minifyHTML()))
+    //..save produciton version to appropriate directory
+        .pipe(gulpif(env === 'production', 
+                gulp.dest(outputDir)))
+        .pipe(connect.reload()); // thus far, reload does not work
 });
 //..By default, do all tasks, then keep warching
 var allTasks = ['html', 'coffee', 'js', 'compass', 'watch', 'connect'];
